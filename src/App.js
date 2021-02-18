@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import CoinSearch from "./components/CoinSearch/index";
+import CoinsWrapper from "./components/CoinsWrapper/index";
+import Coin from "./components/Coin";
+import { fetchCryptoCoins } from "./API/api";
 
 function App() {
+  const [coins, setCoins] = useState([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetchCryptoCoins(setCoins);
+  }, []);
+
+  const handleChange = ({ target }) => {
+    setSearch(target.value);
+  };
+
+  let filteredCoins = coins.filter(coin =>
+    coin.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="coin-app">
+      <CoinSearch onChange={handleChange} />
+      <CoinsWrapper>
+        {filteredCoins.map(coin => {
+          return (
+            <Coin
+              key={coin.id}
+              name={coin.name}
+              image={coin.image}
+              price={coin.current_price}
+              symbol={coin.symbol}
+              marketcap={coin.market_cap}
+              priceChange={coin.price_change_percentage_24h}
+              volume={coin.total_volume}
+            />
+          );
+        })}
+      </CoinsWrapper>
     </div>
   );
 }
